@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { usePathname } from "next/navigation"
 import { Bell, Settings, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -12,10 +13,26 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/lib/auth"
+import { useToast } from "@/hooks/use-toast"
 
 export function Header() {
   const pathname = usePathname()
+  const router = useRouter()
   const { user, signOut } = useAuth()
+  const { toast } = useToast()
+
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      router.push("/")
+    } catch (error: any) {
+      toast({
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive",
+      })
+    }
+  }
 
   return (
     <header className="bg-white shadow">
@@ -51,7 +68,10 @@ export function Header() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => signOut()} className="flex items-center text-red-600">
+                <DropdownMenuItem 
+                  onClick={handleSignOut} 
+                  className="flex items-center text-red-600"
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Sign out</span>
                 </DropdownMenuItem>
