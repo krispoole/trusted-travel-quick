@@ -10,26 +10,58 @@ A Next.js application for tracking locations and receiving notifications for ava
 ## Getting Started
 
 1. Clone the repository:
-   \`\`\`
+   ```
    git clone https://github.com/yourusername/location-notifier.git
    cd location-notifier
-   \`\`\`
+   ```
 
 2. Install dependencies:
-   \`\`\`
+   ```
    npm install
    # or
    yarn install
-   \`\`\`
+   ```
 
 3. Run the development server:
-   \`\`\`
+   ```
    npm run dev
    # or
    yarn dev
-   \`\`\`
+   ```
 
 4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Deployment
+
+This project is configured for deployment to GitHub Pages.
+
+### Manual Deployment
+
+1. Build and export the static site:
+   ```
+   npm run build
+   ```
+
+2. Deploy to GitHub Pages:
+   ```
+   npm run deploy
+   ```
+
+### Automatic Deployment
+
+The project is configured with GitHub Actions for automatic deployment:
+
+1. Push changes to the main branch
+2. GitHub Actions will automatically build and deploy to GitHub Pages
+3. Visit your site at https://yourusername.github.io/location-notifier
+
+## Environment Variables
+
+Create a `.env.local` file in the root directory:
+
+```env
+NEXT_PUBLIC_BASE_PATH=/location-notifier
+```
 
 ## File Structure
 
@@ -46,16 +78,10 @@ A Next.js application for tracking locations and receiving notifications for ava
 - Notification settings
 - In-app toast notifications
 
-## Deployment
-
-This project is designed to be deployed on Vercel. Connect your GitHub repository to Vercel for automatic deployments.
-
 ## Learn More
-
-To learn more about the technologies used in this project, check out the following resources:
 
 - [Next.js Documentation](https://nextjs.org/docs)
 - [React Documentation](https://reactjs.org/docs)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-- [Vercel Platform](https://vercel.com/docs)
+- [GitHub Pages](https://pages.github.com/)
 
