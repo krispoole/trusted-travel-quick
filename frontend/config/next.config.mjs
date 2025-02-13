@@ -20,6 +20,7 @@ const nextConfig = {
     unoptimized: true,
   },
   experimental: {
+    esmExternals: true,
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
