@@ -9,7 +9,7 @@ import { Input } from "../../components/ui/input"
 import { Card, CardHeader, CardTitle, CardContent } from "../../components/ui/card"
 import { Badge } from "../../components/ui/badge"
 import { NotificationSettings } from "../../components/notification-settings"
-import { Toast, useToast } from "../../components/ui/toast"
+import { CustomToast, useToast } from "../../components/ui/toast"
 // Mock location data
 const locations = [
   "New York, NY",
@@ -30,7 +30,7 @@ export default function DashboardPage() {
   const [search, setSearch] = useState("")
   const [selectedLocations, setSelectedLocations] = useState<string[]>([])
   const [suggestions, setSuggestions] = useState<string[]>([])
-  const { toast, showToast, closeToast } = useToast()
+  const { toasts, showToast, closeToast } = useToast()
 
   useEffect(() => {
     if (!user) {
@@ -128,7 +128,14 @@ export default function DashboardPage() {
           <NotificationSettings />
         </div>
       </main>
-      {toast && <Toast message={toast.message} type={toast.type} onClose={closeToast} />}
+      {toasts && toasts.map(toast => (
+        <CustomToast 
+          key={toast.id}
+          message={toast.message} 
+          type={toast.type} 
+          onClose={() => closeToast(toast.id)} 
+        />
+      ))}
     </div>
   )
 }

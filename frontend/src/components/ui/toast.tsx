@@ -3,13 +3,13 @@
 import { useState, useEffect } from "react"
 import { X } from "lucide-react"
 
-type ToastProps = {
+type CustomToastProps = {
   message: string
   type: "success" | "error" | "info"
   onClose: () => void
 }
 
-export function Toast({ message, type, onClose }: ToastProps) {
+export function CustomToast({ message, type, onClose }: CustomToastProps) {
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose()
@@ -18,10 +18,17 @@ export function Toast({ message, type, onClose }: ToastProps) {
     return () => clearTimeout(timer)
   }, [onClose])
 
-  const bgColor = type === "success" ? "bg-green-500" : type === "error" ? "bg-red-500" : "bg-blue-500"
+  const bgColor =
+    type === "success"
+      ? "bg-green-500"
+      : type === "error"
+      ? "bg-red-500"
+      : "bg-blue-500"
 
   return (
-    <div className={`fixed bottom-4 right-4 ${bgColor} text-white px-4 py-2 rounded-md shadow-lg flex items-center`}>
+    <div
+      className={`fixed bottom-4 right-4 ${bgColor} text-white px-4 py-2 rounded-md shadow-lg flex items-center`}
+    >
       <span>{message}</span>
       <button onClick={onClose} className="ml-2 focus:outline-none">
         <X className="h-4 w-4" />
@@ -31,16 +38,24 @@ export function Toast({ message, type, onClose }: ToastProps) {
 }
 
 export function useToast() {
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null)
+  const [toasts, setToasts] = useState<
+    { id: string; message: string; type: "success" | "error" | "info" }[]
+  >([])
 
-  const showToast = (message: string, type: "success" | "error" | "info") => {
-    setToast({ message, type })
+  const showToast = (
+    message: string,
+    type: "success" | "error" | "info"
+  ) => {
+    const id = Math.random().toString(36).substr(2, 9)
+    setToasts((prevToasts) => [...prevToasts, { id, message, type }])
   }
 
-  const closeToast = () => {
-    setToast(null)
+  const closeToast = (id: string) => {
+    setToasts((prevToasts) =>
+      prevToasts.filter((toast) => toast.id !== id)
+    )
   }
 
-  return { toast, showToast, closeToast }
+  return { toasts, showToast, closeToast }
 }
 

@@ -3,16 +3,15 @@
 // Inspired by react-hot-toast library
 import * as React from "react"
 
-import type { ToastProps } from "@radix-ui/react-toast"
+import type { ToastProps as RadixToastProps } from "@radix-ui/react-toast"
 
 const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 1000000
 
-type ToasterToast = ToastProps & {
+type ToasterToast = RadixToastProps & {
   id: string
-  title?: React.ReactNode
-  description?: React.ReactNode
-  action?: React.ReactNode
+  message: string
+  type: "success" | "error" | "info"
 }
 
 const actionTypes = {
