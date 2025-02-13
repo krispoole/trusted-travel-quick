@@ -7,6 +7,9 @@ try {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'export',
+  basePath: process.env.NODE_ENV === 'production' ? '/trusted-travel-quick' : '', // Replace with your repo name
+  trailingSlash: true,
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -17,6 +20,7 @@ const nextConfig = {
     unoptimized: true,
   },
   experimental: {
+    esmExternals: true,
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
