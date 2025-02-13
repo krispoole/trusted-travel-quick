@@ -37,3 +37,5 @@ next-env.d.ts
 
 # Don't ignore GitHub specific files
 !.github
+!.github/workflows/
+!.github/workflows/deploy.yml
