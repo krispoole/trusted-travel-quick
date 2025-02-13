@@ -1,0 +1,118 @@
+---
+description: 
+globs: 
+---
+---
+description: GitHub Pages Deployment Rules
+globs: 
+  - .github/workflows/*.yml
+  - next.config.*
+  - package.json
+  - .gitignore
+---
+# GitHub Pages Deployment Rules
+
+## Configuration and Setup
+
+### Next.js Configuration
+```typescript
+const nextConfig = {
+  output: 'export', // Enable static exports
+  basePath: process.env.NODE_ENV === 'production' ? '/your-repo-name' : '',
+  images: {
+    unoptimized: true, // Required for static export
+  },
+  experimental: {
+    appDir: true,
+  }
+}
+```
+
+### GitHub Actions Workflow
+- Use `actions/checkout@v3` for repository access
+- Configure Node.js with caching:
+  ```yaml
+  - uses: actions/setup-node@v3
+    with:
+      node-version: '18'
+      cache: 'npm'
+      cache-dependency-path: './frontend/package-lock.json'
+  ```
+- Set proper working directories for monorepo structure:
+  ```yaml
+  working-directory: ./frontend
+  ```
+- Use `actions/upload-pages-artifact` for deployment artifacts
+- Configure proper permissions:
+  ```yaml
+  permissions:
+    contents: read
+    pages: write
+    id-token: write
+  ```
+
+## Project Structure
+
+### Git Configuration
+- Include `.github/workflows/` in version control
+- Add `!.github` to .gitignore to ensure workflow files are tracked
+- Track package-lock.json for consistent installations
+
+### Package.json Scripts
+```json
+{
+  "scripts": {
+    "build": "next build",
+    "export": "next build && next export",
+    "deploy": "npm run build && touch out/.nojekyll && gh-pages -d out -t true"
+  }
+}
+```
+
+## Development Practices
+
+### Environment Configuration
+- Use environment variables for base paths:
+  ```env
+  NEXT_PUBLIC_BASE_PATH=/your-repo-name
+  ```
+- Ensure all assets use relative paths
+- Handle client-side routing with basePath consideration
+- Test static export locally before deployment
+
+## Deployment Process
+
+### Automated Deployment
+1. GitHub Actions:
+   - Triggers on push to main branch
+   - Builds and exports static site
+   - Deploys to GitHub Pages environment
+
+### Manual Deployment
+1. Local deployment:
+   - Use `npm run deploy`
+   - Ensure gh-pages branch is configured
+
+## Quality Checks
+
+### Pre-deployment Verification
+- Verify static export compatibility:
+  - No server-side only features
+  - All dynamic routes properly generated
+  - Images and assets properly referenced
+- Test deployment URLs locally
+- Validate GitHub Pages configuration in repository settings
+
+## Security Considerations
+
+### Security Best Practices
+- Store sensitive data in GitHub Secrets
+- Use environment-specific configurations
+- Implement proper CORS headers
+- Configure CSP for GitHub Pages hosting
+
+### Common Issues
+- Missing package-lock.json
+- Incorrect working directory in workflow
+- Improper permissions configuration
+- Missing .nojekyll file
