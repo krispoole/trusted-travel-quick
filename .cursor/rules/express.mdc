@@ -1,0 +1,13 @@
+---
+description: Express.js Specific Rules
+globs: frontend/**/*.jsx
+---
+# Express.js Specific Rules
+
+- Use async/await with try/catch for route handlers
+- Implement proper error middleware
+- Use helmet for security headers
+- Implement rate limiting for API endpoints
+- Use compression middleware for response compression
+- Implement proper logging using a library like winston
+- Use celebrate for request validation

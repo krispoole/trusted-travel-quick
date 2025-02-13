@@ -1,0 +1,14 @@
+---
+description: Vue.js Specific Rules
+globs: 
+---
+# Vue.js Specific Rules
+
+- Use Single File Components (SFC)
+- Name components using PascalCase
+- Use props for component communication
+- Implement proper prop validation
+- Use computed properties for derived data
+- Emit events for child-to-parent communication
+- Use v-for with :key for list rendering
+- Avoid v-if with v-for on the same element

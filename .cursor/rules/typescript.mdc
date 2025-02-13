@@ -1,0 +1,13 @@
+---
+description: TypeScript Specific Rules
+globs: 
+---
+# TypeScript Specific Rules
+
+- Use strict mode in tsconfig.json
+- Define explicit return types for functions
+- Use interfaces for object shapes
+- Use enums for sets of related constants
+- Use type guards for runtime type checking
+- Avoid using 'any' type, prefer 'unknown' for variables with uncertain types
+- Use generics for reusable components

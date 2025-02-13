@@ -1,0 +1,22 @@
+# Project-wide Cursor AI Rules
+
+## General
+- Use TypeScript for both frontend and backend
+- Follow airbnb style guide for JavaScript/TypeScript
+- Use async/await for asynchronous operations
+- Implement proper error handling in all async functions
+
+## Frontend (Vue.js)
+- Use Composition API for new components
+- Implement lazy loading for routes
+- Use Vuex for state management
+- Refer to @.cursor/rules/vue.mdc for detailed Vue.js rules
+
+## Backend (Express.js)
+- Use dependency injection for services
+- Implement proper input validation for all API endpoints
+- Use environment variables for configuration
+- Refer to @.cursor/rules/express.mdc for detailed Express.js rules
+
+## TypeScript
+- Refer to @.cursor/rules/typescript.mdc for TypeScript-specific rules
