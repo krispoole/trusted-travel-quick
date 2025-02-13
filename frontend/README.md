@@ -1,39 +1,61 @@
-# trusted-travel-quick
+# Location Notifier
 
-This template should help get you started developing with Vue 3 in Vite.
+A Next.js application for tracking locations and receiving notifications for available appointments.
 
-## Recommended IDE Setup
+## Prerequisites
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- Node.js 14.x or later
+- npm or yarn
 
-## Type Support for `.vue` Imports in TS
+## Getting Started
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+1. Clone the repository:
+   \`\`\`
+   git clone https://github.com/yourusername/location-notifier.git
+   cd location-notifier
+   \`\`\`
 
-## Customize configuration
+2. Install dependencies:
+   \`\`\`
+   npm install
+   # or
+   yarn install
+   \`\`\`
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+3. Run the development server:
+   \`\`\`
+   npm run dev
+   # or
+   yarn dev
+   \`\`\`
 
-## Project Setup
+4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-```sh
-npm install
-```
+## File Structure
 
-### Compile and Hot-Reload for Development
+- \`app/\`: Contains the main application pages and layout
+- \`components/\`: Reusable React components
+- \`lib/\`: Utility functions and context providers
+- \`public/\`: Static assets
+- \`styles/\`: Global styles
 
-```sh
-npm run dev
-```
+## Features
 
-### Type-Check, Compile and Minify for Production
+- User authentication (placeholder)
+- Location search and selection
+- Notification settings
+- In-app toast notifications
 
-```sh
-npm run build
-```
+## Deployment
 
-### Lint with [ESLint](https://eslint.org/)
+This project is designed to be deployed on Vercel. Connect your GitHub repository to Vercel for automatic deployments.
 
-```sh
-npm run lint
-```
+## Learn More
+
+To learn more about the technologies used in this project, check out the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [React Documentation](https://reactjs.org/docs)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [Vercel Platform](https://vercel.com/docs)
+
