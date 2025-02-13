@@ -42,7 +42,9 @@ const handleSubmit = () => {
 
 <template>
   <div class="dashboard">
-    <h1>Travel Dashboard</h1>
+    <div class="header-container">
+      <h1>Travel Dashboard</h1>
+    </div>
     
     <div class="form-container">
       <div class="form-group">
@@ -97,10 +99,33 @@ const handleSubmit = () => {
   max-width: 800px;
   margin: 0 auto;
   padding: 2rem;
+  color: var(--text-color);
+}
+
+.header-container {
+  background: var(--nav-hover-color);
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  text-align: center;
+  backdrop-filter: blur(5px);
+  border: 1px solid var(--border-color);
+}
+
+h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 300;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #007bff, #00d4ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .form-container {
-  background: white;
+  background: var(--form-background);
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -114,14 +139,17 @@ label {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
+  color: var(--text-color);
 }
 
 input, select {
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   font-size: 1rem;
+  background: var(--background-color);
+  color: var(--text-color);
 }
 
 .location-tags {
@@ -132,12 +160,13 @@ input, select {
 }
 
 .location-tag {
-  background: #e9ecef;
+  background: var(--nav-hover-color);
   padding: 0.5rem;
   border-radius: 4px;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  color: var(--text-color);
 }
 
 .remove-btn {
@@ -159,9 +188,14 @@ input, select {
   cursor: pointer;
   font-size: 1rem;
   margin-top: 1rem;
+  transition: background-color 0.3s;
 }
 
 .submit-btn:hover {
   background: #0056b3;
+}
+
+h3 {
+  margin-top: 1.5rem;
 }
 </style> 
