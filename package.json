@@ -1,5 +1,13 @@
 {
-  "dependencies": {
-    "firebase": "^11.3.1"
+  "name": "trusted-travel-quick",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend",
+    "shared"
+  ],
+  "scripts": {
+    "frontend": "npm run dev --workspace=frontend",
+    "backend": "npm run dev --workspace=backend"
   }
-}
+} 

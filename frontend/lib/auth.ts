@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { auth } from '../firebaseConfig';
+import { auth } from '../../shared/config/firebaseConfig';
 import { 
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
