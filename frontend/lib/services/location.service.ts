@@ -51,7 +51,12 @@ export class LocationService {
       return response.json();
     } catch (error) {
       console.error('Error checking appointment availability:', error);
-      return { availableSlots: [], lastPublishedDate: new Date().toISOString() };
+      return { 
+        availableSlots: [], 
+        lastPublishedDate: new Date().toISOString(),
+        locationId: locationId,
+        success: false
+      };
     }
   }
-} 
+}

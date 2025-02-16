@@ -17,8 +17,7 @@ import { DialogTitle } from "@/components/ui/dialog"
 import { findMatchingStates, getStateName, sortStatesByRelevance } from "@/lib/states"
 import { AppointmentAvailabilityModal } from "@/components/appointment-availability-modal"
 import { LocationService } from "@/lib/services/location.service"
-import { Appointment } from "@/lib/types/appointment"
-
+import { Appointment } from "@/lib/models/appointment.model"
 export function LocationSearch() {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
