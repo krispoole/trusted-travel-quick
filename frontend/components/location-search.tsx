@@ -15,6 +15,8 @@ import { useToast } from "@/components/ui/use-toast"
 import { useLocations, Location } from "@/lib/locations"
 import { DialogTitle } from "@/components/ui/dialog"
 import { findMatchingStates, getStateName, sortStatesByRelevance } from "@/lib/states"
+import { AppointmentAvailabilityModal } from "@/components/appointment-availability-modal"
+import { LocationService } from "@/lib/services/location.service"
 
 export function LocationSearch() {
   const [open, setOpen] = useState(false)
@@ -29,6 +31,11 @@ export function LocationSearch() {
     isLoading, 
     error 
   } = useLocations()
+  const [selectedAppointments, setSelectedAppointments] = useState<Appointment[]>([])
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null)
+  
+  const locationService = new LocationService()
 
   useEffect(() => {
     const loadData = async () => {
@@ -101,6 +108,31 @@ export function LocationSearch() {
       .sort((a, b) => a.state.localeCompare(b.state));
   };
 
+  const handleLocationSelect = async (location: Location) => {
+    setSelectedLocation(location)
+    const response = await locationService.checkAppointmentAvailability(location.id)
+    
+    if (response.availableSlots.length > 0) {
+      setSelectedAppointments(response.availableSlots)
+      setIsModalOpen(true)
+    } else {
+      try {
+        await addLocation(location)
+        toast({
+          title: "Location added",
+          description: "Location has been added to your dashboard for monitoring.",
+        })
+        setOpen(false)
+      } catch (error) {
+        toast({
+          title: "Error adding location",
+          description: error instanceof Error ? error.message : "Failed to add location",
+          variant: "destructive",
+        })
+      }
+    }
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-2">
@@ -130,7 +162,7 @@ export function LocationSearch() {
                 <CommandItem
                   key={location.id}
                   onSelect={() => {
-                    addLocation(location)
+                    handleLocationSelect(location)
                     setOpen(false)
                   }}
                   className="flex flex-col items-start py-3"
@@ -146,6 +178,13 @@ export function LocationSearch() {
           ))}
         </CommandList>
       </CommandDialog>
+
+      <AppointmentAvailabilityModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        appointments={selectedAppointments}
+        locationName={selectedLocation?.name ?? ''}
+      />
     </div>
   )
 }

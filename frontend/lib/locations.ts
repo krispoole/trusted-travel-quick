@@ -2,33 +2,7 @@ import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import { auth, db } from "@/firebaseConfig"
 import { doc, setDoc, deleteDoc, collection, getDocs, query, where } from "firebase/firestore"
-
-export interface Location {
-  id: number
-  name: string
-  shortName: string
-  address: string
-  addressAdditional?: string
-  city: string
-  state: string
-  postalCode: string
-  countryCode: string
-  phoneNumber?: string
-  phoneExtension?: string
-  locationType?: string
-  operational: boolean
-}
-
-interface LocationState {
-  locations: Location[]
-  selectedLocations: Location[]
-  isLoading: boolean
-  error: string | null
-  fetchLocations: () => Promise<void>
-  addLocation: (location: Location) => Promise<void>
-  removeLocation: (id: number) => Promise<void>
-  loadSelectedLocations: () => Promise<void>
-}
+import { Location, LocationState } from "@/lib/models/location.model"
 
 export const useLocations = create<LocationState>()(
   persist(
