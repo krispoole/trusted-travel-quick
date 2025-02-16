@@ -26,4 +26,17 @@ export async function GET(
       { status: 500 }
     );
   }
+}
+
+export async function generateStaticParams() {
+  // Fetch all location IDs that need to be pre-rendered
+  const response = await fetch(
+    'https://ttp.cbp.dhs.gov/schedulerapi/locations/?temporary=false&inviteOnly=false&operational=true&serviceName=Global%20Entry'
+  );
+  const locations = await response.json();
+  
+  // Return an array of objects with locationId params
+  return locations.map((location: { id: number }) => ({
+    locationId: location.id.toString(),
+  }));
 } 
