@@ -10,8 +10,7 @@
     "clean": "rimraf .next out node_modules package-lock.json",
     "refresh": "npm run clean && npm install && npm run build",
     "update": "npm update --save/--save-dev",
-    "audit": "npm audit fix",
-    "prepare": "husky install"
+    "audit": "npm audit fix"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -45,8 +44,6 @@
     "rimraf": "^5.0.5",
     "tailwindcss": "^3.4.17",
     "typescript": "^5",
-    "husky": "^8.0.0",
-    "lint-staged": "^15.0.0",
     "prettier": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0"
