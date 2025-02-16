@@ -1,5 +1,5 @@
 const admin = require('firebase-admin');
-const { updateLocations } = require('./fetchLocations');
+const { updateLocations, fetchLocationsFromAPI } = require('./fetchLocations');
 
 async function testLocationSync() {
   try {
@@ -40,6 +40,30 @@ async function testLocationSync() {
       console.log('\n✅ All locations have required fields');
     } else {
       console.error(`\n❌ Found ${validationErrors} validation errors`);
+    }
+
+    // Add new tests for API data
+    
+    // Test direct API fetch
+    console.log('\nTesting direct API fetch...');
+    const apiLocations = await fetchLocationsFromAPI();
+    console.log(`Fetched ${apiLocations.length} locations from API`);
+    
+    // Verify API data structure
+    if (apiLocations.length > 0) {
+      const sampleLocation = apiLocations[0];
+      console.log('\nSample API Location Data:');
+      console.log(JSON.stringify(sampleLocation, null, 2));
+      
+      // Verify required fields from API
+      const requiredApiFields = ['id', 'name', 'city', 'state', 'address'];
+      const missingFields = requiredApiFields.filter(field => !sampleLocation[field]);
+      
+      if (missingFields.length === 0) {
+        console.log('\n✅ API data contains all required fields');
+      } else {
+        console.error(`\n❌ API data missing fields: ${missingFields.join(', ')}`);
+      }
     }
 
   } catch (error) {
