@@ -1,25 +1,7 @@
 import { doc, setDoc, deleteDoc, collection, getDocs } from "firebase/firestore"
 import { db, auth } from "@/firebaseConfig"
 import { Location } from "@/lib/models/location.model"
-
-interface Appointment {
-  startTimestamp: string;  // Changed from datetime to match API response
-  locationId: number;
-  active: boolean;
-}
-
-interface AppointmentResponse {
-  availableSlots: Array<{
-    locationId: number;
-    startTimestamp: string;
-    endTimestamp: string;
-    active: boolean;
-    duration: number;
-    remoteInd: boolean;
-  }>;
-  lastPublishedDate: string;
-}
-
+import { AppointmentResponse } from "@/lib/models/appointment.model"
 export class LocationService {
   static async fetchLocations(): Promise<Location[]> {
     const response = await fetch(

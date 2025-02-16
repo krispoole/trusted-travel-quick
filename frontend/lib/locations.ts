@@ -121,3 +121,5 @@ export const useLocations = create<LocationState>()(
   )
 )
 
+export { Location }
+

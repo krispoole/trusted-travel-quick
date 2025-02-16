@@ -10,22 +10,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { format, parseISO } from "date-fns";
 
-interface Appointment {
-  locationId: number;
-  startTimestamp: string;
-  endTimestamp: string;
-  active: boolean;
-  duration: number;
-  remoteInd: boolean;
-}
-
-interface AppointmentAvailabilityModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  appointments: Appointment[];
-  locationName: string;
-}
-
 export function AppointmentAvailabilityModal({
   isOpen,
   onClose,
