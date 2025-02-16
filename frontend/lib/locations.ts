@@ -35,6 +35,9 @@ export const useLocations = create<LocationState>()(
       isLoading: false,
       error: null,
       fetchLocations: async () => {
+        // Don't fetch if we already have locations
+        if (get().locations.length > 0) return;
+        
         try {
           set({ isLoading: true, error: null });
           const response = await fetch(
