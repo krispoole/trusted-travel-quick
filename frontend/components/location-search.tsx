@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -12,74 +12,78 @@ import {
   CommandList,
 } from "@/components/ui/command"
 import { useToast } from "@/components/ui/use-toast"
-import { cities, useLocations } from "@/lib/locations"
+import { useLocations } from "@/lib/locations"
+import { DialogTitle } from "@/components/ui/dialog"
 
 export function LocationSearch() {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
   const { toast } = useToast()
-  const { locations, addLocation } = useLocations()
+  const { locations, selectedLocations, addLocation, fetchLocations, isLoading, error } = useLocations()
 
-  // Handle browser geolocation
-  const handleGetLocation = () => {
-    if (!navigator.geolocation) {
-      toast({
-        title: "Geolocation is not supported",
-        description: "Your browser does not support location services",
-        variant: "destructive",
-      })
-      return
-    }
+  // Fetch locations when component mounts
+  useEffect(() => {
+    fetchLocations()
+  }, [fetchLocations])
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        toast({
-          title: "Location found",
-          description: "Your location has been detected",
-        })
-        // Here you would typically reverse geocode the coordinates
-        // For now we'll just show a success message
-      },
-      (error) => {
-        toast({
-          title: "Error getting location",
-          description: error.message,
-          variant: "destructive",
-        })
-      },
+  const filteredLocations = locations.filter(location => {
+    const searchLower = search.toLowerCase()
+    const isNotSelected = !selectedLocations.find(sel => sel.id === location.id)
+    
+    return isNotSelected && (
+      location.name.toLowerCase().includes(searchLower) ||
+      location.city.toLowerCase().includes(searchLower) ||
+      location.state.toLowerCase().includes(searchLower) ||
+      location.address.toLowerCase().includes(searchLower)
     )
-  }
+  })
 
-  const filteredCities = cities.filter(
-    (city) => city.name.toLowerCase().includes(search.toLowerCase()) && !locations.find((loc) => loc.id === city.id),
-  )
+  if (error) {
+    toast({
+      title: "Error loading locations",
+      description: error,
+      variant: "destructive",
+    })
+  }
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-2">
-        <Button variant="outline" className="flex-1 justify-start text-muted-foreground" onClick={() => setOpen(true)}>
+        <Button 
+          variant="outline" 
+          className="flex-1 justify-start text-muted-foreground" 
+          onClick={() => setOpen(true)}
+          disabled={isLoading}
+        >
           <Search className="mr-2 h-4 w-4" />
-          Search for a location...
-        </Button>
-        <Button variant="outline" size="icon" onClick={handleGetLocation}>
-          <MapPin className="h-4 w-4" />
+          {isLoading ? "Loading locations..." : "Search by city, state, or location name..."}
         </Button>
       </div>
 
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Search cities..." value={search} onValueChange={setSearch} />
+        <DialogTitle className="sr-only">Search locations</DialogTitle>
+        <CommandInput 
+          placeholder="Search locations..." 
+          value={search} 
+          onValueChange={setSearch}
+        />
         <CommandList>
-          <CommandEmpty>No cities found.</CommandEmpty>
-          <CommandGroup heading="Suggestions">
-            {filteredCities.map((city) => (
+          <CommandEmpty>No locations found.</CommandEmpty>
+          <CommandGroup heading="Available Locations">
+            {filteredLocations.map((location) => (
               <CommandItem
-                key={city.id}
+                key={location.id}
                 onSelect={() => {
-                  addLocation(city)
+                  addLocation(location)
                   setOpen(false)
                 }}
+                className="flex flex-col items-start py-3"
               >
-                {city.name}
+                <div className="font-medium">{location.name}</div>
+                <div className="text-sm text-muted-foreground">
+                  {location.city}, {location.state}
+                  {location.address && ` - ${location.address}`}
+                </div>
               </CommandItem>
             ))}
           </CommandGroup>

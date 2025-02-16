@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button"
 import { useLocations } from "@/lib/locations"
 
 export function SelectedLocations() {
-  const { locations, removeLocation } = useLocations()
+  const { selectedLocations, removeLocation } = useLocations()
 
-  if (locations.length === 0) {
+  if (selectedLocations.length === 0) {
     return (
       <div className="text-center text-sm text-muted-foreground">
         No locations selected. Search above to add locations.
@@ -17,7 +17,7 @@ export function SelectedLocations() {
 
   return (
     <div className="grid gap-2">
-      {locations.map((location) => (
+      {selectedLocations.map((location) => (
         <div key={location.id} className="flex items-center justify-between rounded-lg border p-4">
           <span>{location.name}</span>
           <Button variant="ghost" size="icon" onClick={() => removeLocation(location.id)}>
