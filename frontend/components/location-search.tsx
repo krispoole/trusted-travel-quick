@@ -12,7 +12,7 @@ import {
   CommandList,
 } from "@/components/ui/command"
 import { useToast } from "@/components/ui/use-toast"
-import { useLocations } from "@/lib/locations"
+import { useLocations, Location } from "@/lib/locations"
 import { DialogTitle } from "@/components/ui/dialog"
 import { findMatchingStates, getStateName, sortStatesByRelevance } from "@/lib/states"
 
@@ -20,12 +20,35 @@ export function LocationSearch() {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
   const { toast } = useToast()
-  const { locations, selectedLocations, addLocation, fetchLocations, isLoading, error } = useLocations()
+  const { 
+    locations, 
+    selectedLocations, 
+    addLocation, 
+    fetchLocations, 
+    loadSelectedLocations,
+    isLoading, 
+    error 
+  } = useLocations()
 
-  // Fetch locations when component mounts
   useEffect(() => {
-    fetchLocations()
-  }, [fetchLocations])
+    const loadData = async () => {
+      try {
+        await Promise.all([
+          fetchLocations(),
+          loadSelectedLocations()
+        ]);
+      } catch (error) {
+        toast({
+          title: "Error loading locations",
+          description: error instanceof Error ? error.message : "Failed to load locations",
+          variant: "destructive",
+        });
+      }
+    };
+
+    loadData();
+    // Empty dependency array since these functions are stable (from zustand)
+  }, []); 
 
   const getFilteredLocations = () => {
     if (!search.trim()) {
@@ -77,14 +100,6 @@ export function LocationSearch() {
       }))
       .sort((a, b) => a.state.localeCompare(b.state));
   };
-
-  if (error) {
-    toast({
-      title: "Error loading locations",
-      description: error,
-      variant: "destructive",
-    })
-  }
 
   return (
     <div className="flex flex-col gap-4">
