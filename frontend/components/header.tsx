@@ -14,6 +14,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/lib/auth"
 import { useToast } from "@/lib/hooks/use-toast"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
 export function Header() {
   const pathname = usePathname()
@@ -44,13 +49,19 @@ export function Header() {
             </Link>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="relative" asChild>
-              <Link href="/notifications">
-                <Bell className="h-5 w-5" />
-                <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-600" />
-                <span className="sr-only">Notifications</span>
-              </Link>
-            </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Bell className="h-5 w-5" />
+                  <span className="sr-only">Notifications</span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80" align="end">
+                <div className="text-center py-4 text-sm text-muted-foreground">
+                  No new notifications
+                </div>
+              </PopoverContent>
+            </Popover>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
