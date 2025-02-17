@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
-import { LocationState, Location } from "@/lib/models/location.model"
+import { LocationState, Location } from "@/lib/types/location.type"
 import { LocationService } from "@/lib/services/location.service"
 
 export const useLocations = create<LocationState>()(

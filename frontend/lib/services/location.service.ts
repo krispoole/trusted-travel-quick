@@ -1,7 +1,7 @@
 import { doc, setDoc, deleteDoc, collection, getDocs } from "firebase/firestore"
 import { db, auth } from "@/firebaseConfig"
-import { Location } from "@/lib/models/location.model"
-import { AppointmentResponse } from "@/lib/models/appointment.model"
+import { Location } from "@/lib/types/location.type"
+import { AppointmentResponse } from "@/lib/types/appointment.type"
 export class LocationService {
   static async fetchLocations(): Promise<Location[]> {
     const response = await fetch(

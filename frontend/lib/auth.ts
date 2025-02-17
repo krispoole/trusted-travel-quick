@@ -8,7 +8,7 @@ import {
   User as FirebaseUser,
   updateProfile
 } from 'firebase/auth';
-import { User, AuthState } from '@/lib/models/user.model';
+import { User, AuthState } from '@/lib/types/user.type';
 
 const createUserFromFirebaseUser = (firebaseUser: FirebaseUser): User => ({
   id: firebaseUser.uid,

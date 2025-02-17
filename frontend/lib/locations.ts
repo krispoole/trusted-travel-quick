@@ -2,7 +2,7 @@ import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import { auth, db } from "@/firebaseConfig"
 import { doc, setDoc, deleteDoc, collection, getDocs, query, where } from "firebase/firestore"
-import { Location, LocationState } from "@/lib/models/location.model"
+import { Location, LocationState } from "@/lib/types/location.type"
 
 export const useLocations = create<LocationState>()(
   persist(
