@@ -8,23 +8,7 @@ import {
   User as FirebaseUser,
   updateProfile
 } from 'firebase/auth';
-
-interface User {
-  id: string;
-  email: string | null;
-  notificationEmail?: string;
-  emailNotifications: boolean;
-  inAppNotifications: boolean;
-}
-
-interface AuthState {
-  user: User | null;
-  isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
-  updateSettings: (settings: Partial<User>) => Promise<void>;
-}
+import { User, AuthState } from '@/lib/types/user.type';
 
 const createUserFromFirebaseUser = (firebaseUser: FirebaseUser): User => ({
   id: firebaseUser.uid,
