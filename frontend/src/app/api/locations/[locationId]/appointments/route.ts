@@ -5,8 +5,6 @@ export async function GET(
   { params }: { params: { locationId: string } }
 ) {
   try {
-    // Here you would implement the actual appointment availability check
-    // This is just example data
     const appointments = [
       {
         id: '1',

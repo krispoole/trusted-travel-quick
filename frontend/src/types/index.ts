@@ -1,3 +1,3 @@
-export * from "./appointment.type"
-export * from "./location.type"
-export * from "./user.type" 
+export * from "./common/appointment.type"
+export * from "./common/location.type"
+export * from "./auth/user.type" 

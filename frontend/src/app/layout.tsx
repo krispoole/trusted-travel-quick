@@ -6,8 +6,8 @@ import type { Metadata } from "next"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Trusted Travel Quick",
-  description: "Travel booking application",
+  title: "Your App",
+  description: "Your app description",
 }
 
 export default function RootLayout({
@@ -24,7 +24,3 @@ export default function RootLayout({
     </html>
   )
 }
-
-
-
-import './globals.css'
