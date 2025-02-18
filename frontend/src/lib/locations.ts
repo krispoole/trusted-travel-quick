@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
-import { auth, db } from "@/firebase.config"
+import { auth, db } from "@/config/firebase.config"
 import { doc, setDoc, deleteDoc, collection, getDocs, query, where } from "firebase/firestore"
 import { Location, LocationState } from "@/lib/types/location.type"
 
