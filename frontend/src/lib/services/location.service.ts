@@ -1,5 +1,5 @@
 import { doc, setDoc, deleteDoc, collection, getDocs } from "firebase/firestore"
-import { db, auth } from "@/firebase.config"
+import { db, auth } from "@/config/firebase.config"
 import { Location } from "@/lib/types/location.type"
 import { AppointmentResponse } from "@/lib/types/appointment.type"
 export class LocationService {
