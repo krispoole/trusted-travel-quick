@@ -46,7 +46,7 @@ jobs:
       - name: Build
         working-directory: ./frontend
         env:
-          NEXT_PUBLIC_BASE_PATH: "${{ github.ref_name == 'main' && '' || '/test' }}"
+          NEXT_PUBLIC_BASE_PATH: "${{ github.ref_name == 'main' && '/trusted-travel-quick' || '/trusted-travel-quick/test' }}"
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
