@@ -34,7 +34,7 @@ jobs:
       
       - name: Install dependencies
         working-directory: ./frontend
-        run: npm ci
+        run: npm install
       
       - name: Setup Build Cache
         uses: actions/cache@v3
@@ -47,6 +47,7 @@ jobs:
       
       - name: Build
         working-directory: ./frontend
+        run: npm run build
         env:
           NEXT_PUBLIC_BASE_PATH: ${{ github.ref_name == 'main' ? '' : format('/{0}', github.ref_name) }}
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
@@ -56,7 +57,6 @@ jobs:
           FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
           FIREBASE_MEASUREMENT_ID: ${{ secrets.FIREBASE_MEASUREMENT_ID }}
-        run: npm run build
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
