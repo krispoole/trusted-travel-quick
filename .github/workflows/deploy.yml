@@ -1,16 +1,22 @@
-name: Deploy to GitHub Pages
+name: Deploy GitHub Pages
+
+# Trigger on pushes to main and test branches
 on:
   push:
-    branches: ["main","test"]
+    branches:
+      - main
+      - test
   workflow_dispatch:
 
+# Set permissions
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# Allow only one concurrent deployment per branch
 concurrency:
-  group: "pages"
+  group: "pages-${{ github.ref }}"
   cancel-in-progress: true
 
 jobs:
@@ -28,7 +34,7 @@ jobs:
       
       - name: Install dependencies
         working-directory: ./frontend
-        run: npm install
+        run: npm ci
       
       - name: Setup Build Cache
         uses: actions/cache@v3
@@ -41,8 +47,8 @@ jobs:
       
       - name: Build
         working-directory: ./frontend
-        run: npm run build
         env:
+          NEXT_PUBLIC_BASE_PATH: ${{ github.ref_name == 'main' ? '' : format('/{0}', github.ref_name) }}
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
@@ -50,6 +56,7 @@ jobs:
           FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
           FIREBASE_MEASUREMENT_ID: ${{ secrets.FIREBASE_MEASUREMENT_ID }}
+        run: npm run build
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
@@ -66,3 +73,5 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          path: ${{ github.ref_name == 'main' ? '' : github.ref_name }}
