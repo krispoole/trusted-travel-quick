@@ -8,8 +8,9 @@ try {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
-  basePath: process.env.NODE_ENV === 'production' ? '/trusted-travel-quick' : '', // Replace with your repo name
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
   trailingSlash: true,
+  assetPrefix: process.env.NEXT_PUBLIC_BASE_PATH || '',
   eslint: {
     ignoreDuringBuilds: true,
   },
