@@ -121,7 +121,7 @@ export function LocationSearch() {
         await addLocation(location)
         toast({
           title: "Location added",
-          description: "Location has been added to your dashboard for monitoring.",
+          description: `${location.name} has been added to your dashboard for monitoring.`,
         })
         setOpen(false)
       } catch (error) {
