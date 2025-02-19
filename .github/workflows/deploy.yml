@@ -43,10 +43,20 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nextjs-
       
+      # Add step to determine deployment path
+      - name: Set deployment path
+        id: set-path
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "DEPLOY_PATH=/trusted-travel-quick" >> $GITHUB_ENV
+          else
+            echo "DEPLOY_PATH=/trusted-travel-quick/test" >> $GITHUB_ENV
+          fi
+      
       - name: Build
         working-directory: ./frontend
         env:
-          NEXT_PUBLIC_BASE_PATH: "${{ github.ref_name == 'main' && '/trusted-travel-quick' || '/trusted-travel-quick/test' }}"
+          NEXT_PUBLIC_BASE_PATH: ${{ env.DEPLOY_PATH }}
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
@@ -54,7 +64,10 @@ jobs:
           FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
           FIREBASE_MEASUREMENT_ID: ${{ secrets.FIREBASE_MEASUREMENT_ID }}
-        run: npm run build
+        run: |
+          npm run build
+          # Ensure .nojekyll file exists to prevent GitHub Pages from ignoring files that begin with an underscore
+          touch out/.nojekyll
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
