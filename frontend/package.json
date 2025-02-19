@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run clean && next build",
     "start": "next start",
     "lint": "next lint",
-    "clean": "rimraf .next out node_modules package-lock.json",
+    "clean": "rimraf .next out",
     "refresh": "npm run clean && npm install && npm run build",
     "update": "npm update --save/--save-dev",
     "audit": "npm audit fix"
@@ -48,7 +48,7 @@
     "autoprefixer": "^10.4.20",
     "postcss": "^8",
     "prettier": "^3.0.0",
-    "rimraf": "^5.0.5",
+    "rimraf": "^5.0.10",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
   },

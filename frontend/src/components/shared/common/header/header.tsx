@@ -12,8 +12,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useAuth } from "@/lib/auth"
-import { useToast } from "@/lib/hooks/use-toast"
+import { useAuth } from "@/lib/services/auth/auth"
+import { useToast } from "@/components/ui/use-toast"
 import {
   Popover,
   PopoverContent,

@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { useAuth } from "@/lib/auth"
+import { useAuth } from "@/lib/services/auth/auth"
 
 export function NotificationSettings() {
   const { user, updateSettings } = useAuth()

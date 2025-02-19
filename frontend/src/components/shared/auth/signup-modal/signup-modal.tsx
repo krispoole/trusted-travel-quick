@@ -12,7 +12,7 @@ import {
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { useAuth } from "@/lib/auth"
+import { useAuth } from "@/lib/services/auth/auth"
 import { useToast } from "@/components/ui/use-toast"
 
 interface SignupModalProps {
@@ -105,5 +105,3 @@ export function SignupModal({ open, onOpenChange }: SignupModalProps) {
     </Dialog>
   )
 } 
-
-export default SignupModal;

@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useLocations } from "@/lib/locations"
+import { useLocations } from "@/lib/stores/locations.store"
 import { useToast } from "@/components/ui/use-toast"
 
 export function SelectedLocations() {
@@ -56,5 +56,3 @@ export function SelectedLocations() {
     </div>
   )
 }
-
-export default SelectedLocations;

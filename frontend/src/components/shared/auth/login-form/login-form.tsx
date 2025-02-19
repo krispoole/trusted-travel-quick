@@ -1,14 +1,14 @@
 "use client"
 
 import { useState } from "react"
+import { useAuth } from "@/lib/services/auth/auth"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { useAuth } from "@/lib/auth"
-import { SignupModal } from "@/components/signup-modal"
-import { useToast } from "@/components/ui/use-toast"
+import { SignupModal } from "../signup-modal"
 
 export function LoginForm() {
   const [email, setEmail] = useState("")
@@ -83,5 +83,3 @@ export function LoginForm() {
     </>
   )
 }
-
-export default LoginForm;

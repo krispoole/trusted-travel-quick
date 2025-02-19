@@ -12,12 +12,13 @@ import {
   CommandList,
 } from "@/components/ui/command"
 import { useToast } from "@/components/ui/use-toast"
-import { useLocations, Location } from "@/lib/locations"
+import { useLocations } from "@/lib/stores/locations.store"
+import type { Location } from "@/lib/types/common/location.type"
 import { DialogTitle } from "@/components/ui/dialog"
 import { findMatchingStates, getStateName, sortStatesByRelevance } from "@/lib/states"
-import { AppointmentAvailabilityModal } from "@/components/appointment-availability-modal"
+import { AppointmentAvailabilityModal } from "@/components/shared/appointments/appointment-availability/appointment-availability-modal"
 import { LocationService } from "@/lib/services/location.service"
-import { Appointment } from "@/lib/types/appointment.type"
+import { Appointment } from "@/lib/types/common/appointment.type"
 export function LocationSearch() {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
@@ -188,5 +189,3 @@ export function LocationSearch() {
     </div>
   )
 }
-
-export default LocationSearch;

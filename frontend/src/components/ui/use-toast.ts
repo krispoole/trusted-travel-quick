@@ -6,7 +6,6 @@ import type {
 } from "./toast"
 
 import { create } from "zustand"
-import { v4 as uuidv4 } from "uuid"
 
 const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 5000
@@ -19,21 +18,32 @@ type ToasterToast = ToastProps & {
   open?: boolean
 }
 
-type ToastStore = {
-  toasts: ToasterToast[]
-  addToast: (toast: Omit<ToasterToast, "id" | "open">) => void
+interface Toast {
+  id: string
+  title?: string
+  description?: string
+  action?: React.ReactNode
+  variant?: "default" | "destructive"
+  open?: boolean
+}
+
+interface ToastStore {
+  toasts: Toast[]
+  toast: (toast: Omit<Toast, "id" | "open">) => void
+  addToast: (toast: Omit<Toast, "id" | "open">) => void
   removeToast: (id: string) => void
-  updateToast: (id: string, toast: Partial<ToasterToast>) => void
+  updateToast: (id: string, toast: Partial<Toast>) => void
   dismissToast: (id: string) => void
 }
 
 export const useToast = create<ToastStore>((set, get) => ({
   toasts: [],
+  toast: (toast) => get().addToast(toast),
   addToast: (toast) => {
     set((state) => {
       const newToast = {
         ...toast,
-        id: uuidv4(),
+        id: crypto.randomUUID(),
         open: true,
       }
 
@@ -76,3 +86,5 @@ export function toast(props: Omit<ToasterToast, "id" | "open">) {
   const { addToast } = useToast.getState()
   addToast(props)
 }
+
+export { type Toast }

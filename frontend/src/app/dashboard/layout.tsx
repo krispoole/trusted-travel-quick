@@ -1,6 +1,6 @@
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import type React from "react" // Added import for React
+import type { ReactNode } from "react"
+import { Header } from "@/components/shared/common/header"
+import { Footer } from "@/components/shared/common/footer"
 
 export default function DashboardLayout({
   children,

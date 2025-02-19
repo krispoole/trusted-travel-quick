@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { auth } from "@/lib/firebaseConfig";
+import { auth } from "@/config/firebase.config";
 import { 
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -8,7 +8,7 @@ import {
   User as FirebaseUser,
   updateProfile
 } from 'firebase/auth';
-import { User, AuthState } from '@/lib/types/user.type';
+import { User, AuthState } from "@/lib/types/auth/user.type";
 
 const createUserFromFirebaseUser = (firebaseUser: FirebaseUser): User => ({
   id: firebaseUser.uid,
@@ -60,11 +60,13 @@ export const useAuth = create<AuthState>((set) => ({
   },
 }));
 
-// Listen for auth state changes
-onAuthStateChanged(auth, (firebaseUser) => {
-  if (firebaseUser) {
-    useAuth.setState({ user: createUserFromFirebaseUser(firebaseUser), isLoading: false });
-  } else {
-    useAuth.setState({ user: null, isLoading: false });
-  }
-});
+// Only initialize auth listener in browser environment
+if (typeof window !== 'undefined') {
+  onAuthStateChanged(auth, (firebaseUser) => {
+    if (firebaseUser) {
+      useAuth.setState({ user: createUserFromFirebaseUser(firebaseUser), isLoading: false });
+    } else {
+      useAuth.setState({ user: null, isLoading: false });
+    }
+  });
+}

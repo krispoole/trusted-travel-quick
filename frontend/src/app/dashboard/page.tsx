@@ -1,5 +1,5 @@
-import { LocationSearch } from "@/components/location-search"
-import { SelectedLocations } from "@/components/selected-locations"
+import { LocationSearch } from "@/components/features/locations/location-search"
+import { SelectedLocations } from "@/components/features/locations/selected-locations"
 
 export default function Dashboard() {
   return (
