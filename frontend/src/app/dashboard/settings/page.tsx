@@ -1,4 +1,4 @@
-import { NotificationSettings } from "@/components/notification-settings"
+import { NotificationSettings } from "@/components/features/notifications/notification-settings"
 
 export default function Settings() {
   return (

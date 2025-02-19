@@ -1,0 +1,1 @@
+export { AppointmentAvailabilityModal } from './appointment-availability-modal';
