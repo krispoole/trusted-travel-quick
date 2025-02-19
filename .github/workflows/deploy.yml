@@ -14,7 +14,7 @@ permissions:
 
 # Allow only one concurrent deployment per branch
 concurrency:
-  group: "pages-${{ github.ref }}"
+  group: "pages"
   cancel-in-progress: true
 
 jobs:
@@ -37,26 +37,15 @@ jobs:
       - name: Setup Build Cache
         uses: actions/cache@v3
         with:
-          path: |
-            frontend/.next/cache
+          path: frontend/.next/cache
           key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
           restore-keys: |
             ${{ runner.os }}-nextjs-
       
-      # Add step to determine deployment path
-      - name: Set deployment path
-        id: set-path
-        run: |
-          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            echo "DEPLOY_PATH=/trusted-travel-quick" >> $GITHUB_ENV
-          else
-            echo "DEPLOY_PATH=/trusted-travel-quick/test" >> $GITHUB_ENV
-          fi
-      
       - name: Build
         working-directory: ./frontend
         env:
-          NEXT_PUBLIC_BASE_PATH: ${{ env.DEPLOY_PATH }}
+          NEXT_PUBLIC_BASE_PATH: /trusted-travel-quick
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
@@ -76,8 +65,7 @@ jobs:
 
   deploy:
     environment:
-      # Configure environment based on branch
-      name: ${{ github.ref == 'refs/heads/main' && 'github-pages' || 'github-pages-test' }}
+      name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
