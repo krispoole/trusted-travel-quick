@@ -1,10 +1,10 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/base/card"
+import { Label } from "@/components/base/label"
+import { Switch } from "@/components/base/switch"
+import { Input } from "@/components/base/input"
+import { Button } from "@/components/base/button"
 import { useAuth } from "@/lib/services/auth/auth"
 
 export function NotificationSettings() {
