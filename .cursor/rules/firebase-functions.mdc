@@ -1,0 +1,107 @@
+---
+description: 
+globs: 
+---
+ ---
+description: Firebase Functions Development Rules
+globs:
+  - functions/**/*.ts
+  - firebase.json
+  - .firebaserc
+  - firebase.config.ts
+---
+# Firebase Functions Development Rules
+
+## Project Structure
+```typescript
+functions/
+├── src/
+│   ├── auth/        // Authentication triggers
+│   ├── firestore/   // Firestore triggers
+│   ├── http/        // HTTP callable functions
+│   ├── pubsub/      // Scheduled & pub/sub functions
+│   └── utils/       // Shared utilities
+├── package.json
+└── tsconfig.json
+```
+
+## Configuration
+### TypeScript Config
+```json
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "outDir": "lib",
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2017"
+  },
+  "compileOnSave": true,
+  "include": ["src"]
+}
+```
+
+## Development Practices
+
+### Function Structure
+```typescript
+export const functionName = functions
+  .region('us-central1')
+  .runWith({
+    timeoutSeconds: 60,
+    memory: '256MB',
+  })
+  .https.onCall(async (data, context) => {
+    // Validation
+    if (!context.auth) {
+      throw new functions.https.HttpsError('unauthenticated', 'Must be logged in');
+    }
+
+    try {
+      // Function logic
+    } catch (error) {
+      throw new functions.https.HttpsError('internal', 'Function failed');
+    }
+  });
+```
+
+### Security Rules
+- Always validate authentication in functions
+- Use proper CORS configuration for HTTP functions
+- Implement rate limiting for public endpoints
+- Use principle of least privilege for service accounts
+
+### Error Handling
+```typescript
+// Custom error types
+interface FunctionError extends Error {
+  code: string;
+  details?: any;
+}
+
+// Error handling
+try {
+  // Function logic
+} catch (error) {
+  functions.logger.error('Function failed:', error);
+  throw new functions.https.HttpsError(
+    'internal',
+    'Operation failed',
+    error
+  );
+}
+```
+
+### Testing
+- Write unit tests for business logic
+- Use Firebase emulator for integration testing
+- Test error scenarios and edge cases
+- Mock external services
+
+### Deployment
+- Use staged deployments (dev/staging/prod)
+- Set appropriate environment variables
+- Configure proper IAM roles
+- Use secrets for sensitive data

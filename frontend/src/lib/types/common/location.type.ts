@@ -23,4 +23,12 @@ export interface LocationState {
   addLocation: (location: Location) => Promise<void>
   removeLocation: (id: number) => Promise<void>
   loadSelectedLocations: () => Promise<void>
+}
+
+export interface LocationSubscription {
+  id: number
+  subscriberCount: number
+  lastChecked: string | null
+  subscribers: string[]
+  lastAppointments?: Array<Appointment>
 } 
