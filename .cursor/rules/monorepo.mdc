@@ -1,0 +1,60 @@
+---
+description: Monorepo Structure and Development Rules
+globs:
+  - "**/package.json"
+  - "firebase.json"
+  - "nx.json"
+  - "turbo.json"
+---
+# Monorepo Development Rules
+
+## Project Structure
+```
+├── frontend/          # Next.js application
+├── functions/         # Firebase Functions
+├── shared/           # Shared types and utilities
+└── package.json     # Root workspace
+```
+
+## Workspace Configuration
+```json
+{
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "functions",
+    "shared"
+  ]
+}
+```
+
+## Development Practices
+
+### Package Management
+- Use workspace-aware package manager (npm/yarn/pnpm)
+- Maintain consistent versions across packages
+- Share dependencies through workspace root
+- Use strict versioning for shared packages
+
+### Type Sharing
+```typescript
+// shared/types/index.ts
+export interface SharedTypes {
+  // Common types used across packages
+}
+```
+
+### Build Process
+- Coordinate builds between packages
+- Handle dependencies correctly
+- Use proper build caching
+
+### Testing
+- Run tests across all affected packages
+- Use shared test utilities
+- Maintain consistent test coverage requirements
+
+### CI/CD
+- Build and test all packages
+- Deploy in correct order
+- Handle package interdependencies 

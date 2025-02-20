@@ -116,3 +116,39 @@ const nextConfig = {
 - Incorrect working directory in workflow
 - Improper permissions configuration
 - Missing .nojekyll file
+
+## Firebase Integration
+
+### Deployment Configuration
+```json
+{
+  "hosting": {
+    "public": "frontend/out",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "functions": {
+    "source": "functions"
+  }
+}
+```
+
+### Environment Setup
+- Add Firebase-specific secrets to GitHub Actions
+- Configure Firebase hosting with GitHub Pages
+- Set up proper caching for function dependencies
+
+### Deployment Process
+1. Build and deploy functions
+2. Build and export Next.js app
+3. Deploy to Firebase hosting
+4. Update GitHub Pages
