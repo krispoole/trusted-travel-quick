@@ -2,12 +2,12 @@
 
 import { useState } from "react"
 import { useAuth } from "@/lib/services/auth/auth"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { useToast } from "@/components/ui/use-toast"
+import { Button } from "@/components/base/button"
+import { Input } from "@/components/base/input"
+import { useToast } from "@/components/base/use-toast"
 import { useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/base/card"
+import { Label } from "@/components/base/label"
 import { SignupModal } from "../signup-modal"
 
 export function LoginForm() {

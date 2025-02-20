@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Search, MapPin } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/base/button"
 import {
   CommandDialog,
   CommandEmpty,
@@ -10,11 +10,11 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command"
-import { useToast } from "@/components/ui/use-toast"
+} from "@/components/base/command"
+import { useToast } from "@/components/base/use-toast"
 import { useLocations } from "@/lib/stores/locations.store"
 import type { Location } from "@/lib/types/common/location.type"
-import { DialogTitle } from "@/components/ui/dialog"
+import { DialogTitle } from "@/components/base/dialog"
 import { findMatchingStates, getStateName, sortStatesByRelevance } from "@/lib/states"
 import { AppointmentAvailabilityModal } from "@/components/shared/appointments/appointment-availability/appointment-availability-modal"
 import { LocationService } from "@/lib/services/location.service"

@@ -6,8 +6,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from "@/components/base/dialog";
+import { Button } from "@/components/base/button";
 import { format, parseISO } from "date-fns";
 import { AppointmentAvailabilityModalProps } from "@/lib/types";
 

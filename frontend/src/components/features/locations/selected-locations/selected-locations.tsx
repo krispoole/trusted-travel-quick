@@ -1,9 +1,9 @@
 "use client"
 
 import { X } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/base/button"
 import { useLocations } from "@/lib/stores/locations.store"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/base/use-toast"
 
 export function SelectedLocations() {
   const { selectedLocations, removeLocation } = useLocations()

@@ -4,21 +4,21 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { usePathname } from "next/navigation"
 import { Bell, Settings, LogOut } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/base/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/base/dropdown-menu"
 import { useAuth } from "@/lib/services/auth/auth"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/base/use-toast"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@/components/base/popover"
 
 export function Header() {
   const pathname = usePathname()

@@ -8,12 +8,12 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+} from "@/components/base/dialog"
+import { Label } from "@/components/base/label"
+import { Input } from "@/components/base/input"
+import { Button } from "@/components/base/button"
 import { useAuth } from "@/lib/services/auth/auth"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/base/use-toast"
 
 interface SignupModalProps {
   open: boolean

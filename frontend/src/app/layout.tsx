@@ -1,6 +1,6 @@
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { Toaster } from "@/components/ui/toaster"
+import { Toaster } from "@/components/base/toaster"
 import { ThemeProvider } from "@/components/shared/common/theme-provider"
 import type { Metadata } from "next"
 
