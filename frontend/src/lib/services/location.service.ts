@@ -1,7 +1,7 @@
-import { doc, setDoc, deleteDoc, collection, getDocs, getDoc, writeBatch, increment, arrayUnion, arrayRemove, updateDoc } from "firebase/firestore"
+import { doc, setDoc, deleteDoc, collection, getDocs, getDoc, writeBatch, increment, arrayUnion, arrayRemove, updateDoc, runTransaction } from "firebase/firestore"
 import { db, auth } from "@/config/firebase.config"
-import { Location, LocationSubscription } from "@/lib/types/location.type"
-import { AppointmentResponse } from "@/lib/types/appointment.type"
+import { Location, LocationSubscription } from "@/lib/types/common/location.type"
+import { AppointmentResponse } from "@/lib/types/common/appointment.type"
 
 export class LocationService {
   static async fetchLocations(): Promise<Location[]> {
@@ -26,35 +26,35 @@ export class LocationService {
   }
 
   static async updateGlobalLocationTracking(location: Location, userId: string): Promise<void> {
-    const batch = writeBatch(db)
     const globalLocationRef = doc(db, 'activeLocations', location.id.toString())
     
     try {
-      const docSnap = await getDoc(globalLocationRef)
-      
-      if (!docSnap.exists()) {
-        // New location subscription
-        batch.set(globalLocationRef, {
-          id: location.id,
-          subscriberCount: 1,
-          lastChecked: null,
-          subscribers: [userId],
-          name: location.name, // Store location details for easier access
-          city: location.city,
-          state: location.state
-        })
-      } else {
-        // Update existing location
-        const data = docSnap.data() as LocationSubscription
-        if (!data.subscribers.includes(userId)) {
-          batch.update(globalLocationRef, {
-            subscriberCount: increment(1),
-            subscribers: arrayUnion(userId)
+      // Use transaction instead of batch for better concurrency handling
+      await runTransaction(db, async (transaction) => {
+        const docSnap = await transaction.get(globalLocationRef)
+        
+        if (!docSnap.exists()) {
+          // New location subscription
+          transaction.set(globalLocationRef, {
+            id: location.id,
+            subscriberCount: 1,
+            lastChecked: null,
+            subscribers: [userId],
+            name: location.name,
+            city: location.city,
+            state: location.state
           })
+        } else {
+          // Update existing location
+          const data = docSnap.data() as LocationSubscription
+          if (!data.subscribers.includes(userId)) {
+            transaction.update(globalLocationRef, {
+              subscriberCount: increment(1),
+              subscribers: arrayUnion(userId)
+            })
+          }
         }
-      }
-      
-      await batch.commit()
+      })
     } catch (error) {
       console.error('Error updating global location tracking:', error)
       throw error
@@ -91,18 +91,21 @@ export class LocationService {
     if (!user) throw new Error('User not authenticated')
 
     try {
-      const batch = writeBatch(db)
-      
-      // Add to user's selected locations
+      // Add to user's selected locations first
       const locationRef = doc(db, 'users', user.uid, 'selectedLocations', location.id.toString())
-      batch.set(locationRef, location)
+      await setDoc(locationRef, location)
       
-      // Add to global tracking
+      // Then update global tracking
       await this.updateGlobalLocationTracking(location, user.uid)
-      
-      await batch.commit()
     } catch (error) {
       console.error('Error adding location:', error)
+      // If error occurs, try to rollback the user's selected location
+      try {
+        const locationRef = doc(db, 'users', user.uid, 'selectedLocations', location.id.toString())
+        await deleteDoc(locationRef)
+      } catch (rollbackError) {
+        console.error('Error rolling back location addition:', rollbackError)
+      }
       throw error
     }
   }

@@ -1,4 +1,8 @@
 ---
+description: 
+globs: 
+---
+ ---
 description: Firebase Functions Development Rules
 globs:
   - functions/**/*.ts
@@ -100,4 +104,4 @@ try {
 - Use staged deployments (dev/staging/prod)
 - Set appropriate environment variables
 - Configure proper IAM roles
-- Use secrets for sensitive data 
+- Use secrets for sensitive data

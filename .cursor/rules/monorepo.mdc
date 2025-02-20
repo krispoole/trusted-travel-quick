@@ -1,4 +1,8 @@
 ---
+description: 
+globs: 
+---
+ ---
 description: Monorepo Structure and Development Rules
 globs:
   - "**/package.json"
@@ -57,4 +61,4 @@ export interface SharedTypes {
 ### CI/CD
 - Build and test all packages
 - Deploy in correct order
-- Handle package interdependencies 
+- Handle package interdependencies
