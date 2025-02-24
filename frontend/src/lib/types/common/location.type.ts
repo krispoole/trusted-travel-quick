@@ -17,8 +17,12 @@ export interface Location {
   operational: boolean
   lastChecked: Timestamp | null
   lastAppointmentFound: Timestamp | null
-  subscribers?: string[]
-  subscriberCount?: number
+}
+
+export interface UserLocation {
+  userId: string
+  locationId: string
+  selectedAt: Timestamp
 }
 
 export interface LocationState {
@@ -28,8 +32,11 @@ export interface LocationState {
   error: string | null
   fetchLocations: () => Promise<void>
   addLocation: (location: Location) => Promise<void>
-  removeLocation: (id: number) => Promise<void>
+  removeLocation: (locationId: string) => Promise<void>
   loadSelectedLocations: () => Promise<void>
+  clearLocations: () => void
+  initializeAuthListener: () => () => void
+  subscribeToSelectedLocations: () => (() => void) | undefined
 }
 
 export interface LocationSubscription {

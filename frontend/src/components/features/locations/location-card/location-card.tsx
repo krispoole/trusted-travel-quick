@@ -7,74 +7,35 @@ import { formatDistanceToNow } from "date-fns";
 import { useToast } from "@/components/base/use-toast";
 import { useLocations } from "@/lib/stores/locations.store";
 import { Timestamp } from "firebase/firestore";
-
-interface ActiveLocation {
-  id: string | number;
-  name: string;
-  city: string;
-  state: string;
-  lastChecked: Timestamp | null;
-  lastAppointmentFound: Timestamp | null;
-  subscriberCount: number;
-  subscribers: string[];
-}
+import { Location } from "@/lib/types/common/location.type";
 
 interface LocationCardProps {
-  location: ActiveLocation;
+  location: Location;
 }
 
 export function LocationCard({ location }: LocationCardProps) {
   const { removeLocation } = useLocations();
   const { toast } = useToast();
 
-  const formatDate = (timestamp: Timestamp | null | undefined) => {
+  const formatDate = (timestamp: Timestamp | null) => {
     if (!timestamp) return "Never";
-
+    
     try {
-      let date: Date;
-
-      // Case 1: Firebase Timestamp instance
       if (timestamp instanceof Timestamp) {
-        date = timestamp.toDate();
+        return formatDistanceToNow(timestamp.toDate(), { addSuffix: true });
       }
-      // Case 2: Serialized timestamp object
-      else if (
-        typeof timestamp === 'object' && 
-        timestamp !== null &&
-        'seconds' in timestamp &&
-        'nanoseconds' in timestamp
-      ) {
-        // Ensure we're working with numbers
-        const seconds = typeof (timestamp as {seconds: number | string}).seconds === 'number'
-          ? (timestamp as {seconds: number}).seconds
-          : parseInt((timestamp as {seconds: string}).seconds);
-        const nanoseconds = typeof (timestamp as {nanoseconds: number | string}).nanoseconds === 'number'
-          ? (timestamp as {nanoseconds: number}).nanoseconds
-          : parseInt((timestamp as {nanoseconds: string}).nanoseconds);
-
-        if (isNaN(seconds) || isNaN(nanoseconds)) {
-          console.error("Invalid timestamp values:", timestamp);
-          return "Invalid date";
-        }
-
-        date = new Timestamp(seconds, nanoseconds).toDate();
+      
+      // Handle serialized timestamp
+      const timestampData = timestamp as unknown as { seconds: number; nanoseconds: number };
+      if (typeof timestampData.seconds === 'number' && typeof timestampData.nanoseconds === 'number') {
+        const date = new Timestamp(timestampData.seconds, timestampData.nanoseconds).toDate();
+        return formatDistanceToNow(date, { addSuffix: true });
       }
-      // Case 3: Unknown format
-      else {
-        console.error("Unexpected timestamp format:", timestamp);
-        return "Invalid date";
-      }
-
-      // Validate the resulting date
-      if (isNaN(date.getTime())) {
-        console.error("Invalid date object created:", date);
-        return "Invalid date";
-      }
-
-      return formatDistanceToNow(date, { addSuffix: true });
-    } catch (e) {
-      console.error("Error formatting timestamp:", e, "Value:", timestamp);
-      return "Error";
+      
+      return 'Invalid date';
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Error';
     }
   };
 
@@ -98,7 +59,7 @@ export function LocationCard({ location }: LocationCardProps) {
 
   const handleRemove = async () => {
     try {
-      await removeLocation(Number(location.id));
+      await removeLocation(location.id);
       toast({
         title: "Location removed",
         description: `${location.name} has been removed from your selected locations.`,
@@ -138,10 +99,6 @@ export function LocationCard({ location }: LocationCardProps) {
           <div className="flex justify-between">
             <span className="text-muted-foreground">Last appointment found:</span>
             <span>{formatDate(location.lastAppointmentFound)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Subscribers:</span>
-            <span>{location.subscriberCount || 0}</span>
           </div>
         </div>
       </CardContent>

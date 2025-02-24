@@ -3,8 +3,9 @@ import { persist } from "zustand/middleware"
 import { LocationState, Location } from "@/lib/types/common/location.type" 
 import { LocationService } from "@/lib/services/location.service"
 import { auth, db } from "@/config/firebase.config"
-import { collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, arrayUnion, increment, arrayRemove, onSnapshot, writeBatch } from "firebase/firestore"
+import { collection, getDocs, doc, getDoc, query, where, onSnapshot, setDoc, deleteDoc } from "firebase/firestore"
 import { Timestamp } from "firebase/firestore"
+import { onAuthStateChanged } from "firebase/auth"
 
 // Add caching mechanism
 const locationCache = new Map<string, {
@@ -22,14 +23,14 @@ const getCachedLocation = async (locationId: string) => {
     return cached.data;
   }
 
-  const activeLocationRef = doc(db, 'activeLocations', locationId);
-  const activeLocationSnap = await getDoc(activeLocationRef);
+  const locationRef = doc(db, 'locations', locationId);
+  const locationSnap = await getDoc(locationRef);
   
-  if (!activeLocationSnap.exists()) return null;
+  if (!locationSnap.exists()) return null;
 
   const locationData = convertFirestoreLocation({
     id: locationId,
-    ...activeLocationSnap.data()
+    ...locationSnap.data()
   });
 
   locationCache.set(locationId, {
@@ -38,23 +39,7 @@ const getCachedLocation = async (locationId: string) => {
   });
 
   return locationData;
-}
-
-// Add retry mechanism for failed operations
-const retryOperation = async (operation: () => Promise<any>, maxRetries = 3) => {
-  let lastError;
-  
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      return await operation();
-    } catch (error) {
-      lastError = error;
-      await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
-    }
-  }
-  
-  throw lastError;
-}
+};
 
 const convertFirestoreLocation = (data: any): Location => {
   console.log('Converting location data:', data); // Debug log
@@ -72,18 +57,16 @@ const convertFirestoreLocation = (data: any): Location => {
   return {
     id: data.id,
     name: data.name,
-    city: data.city,
-    state: data.state,
     shortName: data.shortName || '',
     address: data.address || '',
+    city: data.city,
+    state: data.state,
     postalCode: data.postalCode || '',
     countryCode: data.countryCode || '',
     operational: data.operational ?? true,
     // Convert timestamps properly
     lastChecked: convertTimestamp(data.lastChecked),
-    lastAppointmentFound: convertTimestamp(data.lastAppointmentFound),
-    subscriberCount: data.subscriberCount || 0,
-    subscribers: data.subscribers || []
+    lastAppointmentFound: convertTimestamp(data.lastAppointmentFound)
   };
 };
 
@@ -96,84 +79,52 @@ export const useLocations = create<LocationState>()(
       error: null,
       
       loadSelectedLocations: async () => {
-        if (get().isLoading) return;
+        const user = auth.currentUser;
+        if (!user || get().isLoading) return;
         
         try {
-          const user = auth.currentUser;
-          if (!user) return;
-
           set({ isLoading: true, error: null });
           
-          // Get user's selected location IDs and their data
-          const userLocationsRef = collection(db, 'users', user.uid, 'selectedLocations');
-          const userLocationsSnapshot = await getDocs(userLocationsRef);
+          // Query userLocations collection filtered by current user
+          const userLocationsRef = collection(db, 'userLocations');
+          const userLocationsQuery = query(userLocationsRef, where('userId', '==', user.uid));
+          const userLocationsSnapshot = await getDocs(userLocationsQuery);
           
-          // Create a map of user's selected locations
-          const userLocationsMap = new Map(
-            userLocationsSnapshot.docs.map(doc => [
-              doc.id,
-              { id: doc.id, ...doc.data() }
-            ])
-          );
-
-          // Fetch full location data from activeLocations collection
-          const selectedLocations = await Promise.all(
-            Array.from(userLocationsMap.keys()).map(async (locationId) => {
-              try {
-                const activeLocationRef = doc(db, 'activeLocations', locationId);
-                const activeLocationSnap = await getDoc(activeLocationRef);
-                
-                if (!activeLocationSnap.exists()) {
-                  console.warn(`Location ${locationId} not found in activeLocations`);
-                  return null;
-                }
-
-                // Merge data from both collections, prioritizing activeLocations for timestamps
-                const activeLocationData = activeLocationSnap.data();
-                const userLocationData = userLocationsMap.get(locationId);
-
-                const mergedData = {
-                  id: locationId,
-                  ...userLocationData,
-                  ...activeLocationData,
-                  // Explicitly convert timestamps
-                  lastChecked: activeLocationData.lastChecked ? 
-                    new Timestamp(
-                      activeLocationData.lastChecked.seconds,
-                      activeLocationData.lastChecked.nanoseconds
-                    ) : null,
-                  lastAppointmentFound: activeLocationData.lastAppointmentFound ? 
-                    new Timestamp(
-                      activeLocationData.lastAppointmentFound.seconds,
-                      activeLocationData.lastAppointmentFound.nanoseconds
-                    ) : null,
-                  subscriberCount: activeLocationData.subscriberCount || 0,
-                  subscribers: activeLocationData.subscribers || [],
-                };
-
-                console.log('Merged location data:', mergedData); // Debug log
-                
-                return convertFirestoreLocation(mergedData);
-              } catch (error) {
-                console.error(`Error fetching location ${locationId}:`, error);
-                return null;
-              }
-            })
-          );
-
-          // Filter out any null values from locations that weren't found
-          const validLocations = selectedLocations.filter((loc): loc is Location => loc !== null);
+          // Get all location IDs selected by the user
+          const locationIds = userLocationsSnapshot.docs.map(doc => doc.data().locationId);
           
-          console.log('Final locations data:', validLocations); // Debug log
+          // Clear selected locations if user has none
+          if (locationIds.length === 0) {
+            set({ selectedLocations: [], isLoading: false, error: null });
+            return;
+          }
           
-          set(state => ({
-            selectedLocations: validLocations,
+          // Fetch full location details for each selected location
+          const selectedLocationsPromises = locationIds.map(async (locationId) => {
+            const locationRef = doc(db, 'locations', locationId);
+            const locationSnap = await getDoc(locationRef);
+            if (!locationSnap.exists()) return null;
+            
+            return convertFirestoreLocation({
+              id: locationId,
+              ...locationSnap.data()
+            });
+          });
+          
+          const selectedLocations = (await Promise.all(selectedLocationsPromises))
+            .filter((loc): loc is Location => loc !== null);
+          
+          set({ 
+            selectedLocations,
             isLoading: false,
-            error: null
-          }));
+            error: null 
+          });
         } catch (error) {
-          console.error('Error loading locations:', error);
-          set({ isLoading: false, error: error instanceof Error ? error.message : 'Failed to load locations' });
+          console.error('Error loading selected locations:', error);
+          set({ 
+            isLoading: false, 
+            error: error instanceof Error ? error.message : 'Failed to load locations' 
+          });
         }
       },
 
@@ -182,8 +133,13 @@ export const useLocations = create<LocationState>()(
 
         try {
           set({ isLoading: true, error: null });
-          const locations = await retryOperation(() => LocationService.fetchLocations());
-          set({ locations, isLoading: false, error: null });
+          const locations = await LocationService.fetchLocations();
+          
+          // Filter out locations that are already selected
+          const selectedLocationIds = new Set(get().selectedLocations.map(loc => loc.id));
+          const availableLocations = locations.filter(loc => !selectedLocationIds.has(loc.id));
+          
+          set({ locations: availableLocations, isLoading: false, error: null });
         } catch (error) {
           set({ 
             isLoading: false, 
@@ -192,105 +148,71 @@ export const useLocations = create<LocationState>()(
         }
       },
 
-      addLocation: async (location) => {
+      addLocation: async (location: Location) => {
         try {
           const user = auth.currentUser;
-          if (!user) throw new Error('User not authenticated');
+          if (!user) throw new Error('Authentication required');
 
-          const batch = writeBatch(db);
+          // First check if location exists in locations collection
+          const locationRef = doc(db, 'locations', location.id);
+          const locationSnap = await getDoc(locationRef);
           
-          // First check if location exists in activeLocations
-          const activeLocationRef = doc(db, 'activeLocations', location.id.toString());
-          const activeLocationSnap = await getDoc(activeLocationRef);
-          
-          if (!activeLocationSnap.exists()) {
-            // Create new active location if it doesn't exist
-            const now = Timestamp.now();
-            batch.set(activeLocationRef, {
+          // Only create the location if it doesn't exist
+          if (!locationSnap.exists()) {
+            await setDoc(locationRef, {
               name: location.name,
+              shortName: location.shortName,
+              address: location.address,
               city: location.city,
               state: location.state,
-              subscribers: [user.uid],
-              subscriberCount: 1,
-              lastChecked: now,
+              postalCode: location.postalCode,
+              countryCode: location.countryCode,
+              operational: location.operational,
+              lastChecked: null,
               lastAppointmentFound: null
-            });
-          } else {
-            // Update existing active location
-            batch.update(activeLocationRef, {
-              subscribers: arrayUnion(user.uid),
-              subscriberCount: increment(1)
             });
           }
 
-          // Add to user's selected locations
-          const userLocationRef = doc(db, 'users', user.uid, 'selectedLocations', location.id.toString());
-          batch.set(userLocationRef, {
-            addedAt: Timestamp.now()
+          // Create user-specific location relationship
+          const userLocationRef = doc(db, 'userLocations', `${user.uid}_${location.id}`);
+          await setDoc(userLocationRef, {
+            userId: user.uid,
+            locationId: location.id,
+            selectedAt: Timestamp.now()
           });
-
-          await batch.commit();
-
-          // Fetch the updated location data
-          const updatedLocationSnap = await getDoc(activeLocationRef);
-          const updatedLocation = convertFirestoreLocation({
-            id: location.id,
-            ...updatedLocationSnap.data()
-          });
-
-          set((state) => ({
-            selectedLocations: [...state.selectedLocations, updatedLocation],
-            locations: state.locations.filter(loc => loc.id !== location.id)
+          
+          set(state => ({
+            selectedLocations: [...state.selectedLocations, location],
+            locations: state.locations.filter(loc => loc.id !== location.id),
+            error: null
           }));
         } catch (error) {
+          console.error('Error adding location:', error);
           set({ error: error instanceof Error ? error.message : 'Failed to add location' });
           throw error;
         }
       },
 
-      removeLocation: async (id: number) => {
-        const locationId = id.toString();
-        const user = auth.currentUser;
-        if (!user) throw new Error('User not authenticated');
-
-        // Optimistically update UI
-        set((state) => ({
-          selectedLocations: state.selectedLocations.filter(loc => loc.id !== locationId),
-          locations: state.locations
-        }));
-
+      removeLocation: async (locationId: string) => {
         try {
-          const batch = writeBatch(db);
+          const user = auth.currentUser;
+          if (!user) throw new Error('Authentication required');
 
-          // Remove from user's selected locations
-          const userLocationRef = doc(db, 'users', user.uid, 'selectedLocations', locationId);
-          batch.delete(userLocationRef);
-
-          // Update active locations
-          const activeLocationRef = doc(db, 'activeLocations', locationId);
-          batch.update(activeLocationRef, {
-            subscribers: arrayRemove(user.uid),
-            subscriberCount: increment(-1)
-          });
-
-          await batch.commit();
-
-          // Check if we need to delete the active location (no more subscribers)
-          const activeLocationSnap = await getDoc(activeLocationRef);
-          const activeLocationData = activeLocationSnap.data();
+          // Remove only the user's relationship with the location
+          const userLocationRef = doc(db, 'userLocations', `${user.uid}_${locationId}`);
+          await deleteDoc(userLocationRef);
           
-          if (activeLocationData?.subscriberCount <= 0) {
-            await deleteDoc(activeLocationRef);
-          }
+          set(state => {
+            const removedLocation = state.selectedLocations.find(loc => loc.id === locationId);
+            if (!removedLocation) return state;
+
+            return {
+              selectedLocations: state.selectedLocations.filter(loc => loc.id !== locationId),
+              locations: [...state.locations, removedLocation]
+            };
+          });
         } catch (error) {
-          // Revert optimistic update on error
-          const originalLocation = get().selectedLocations.find(loc => loc.id === locationId);
-          if (originalLocation) {
-            set((state) => ({
-              selectedLocations: [...state.selectedLocations, originalLocation],
-              locations: state.locations
-            }));
-          }
+          set({ error: error instanceof Error ? error.message : 'Failed to remove location' });
           throw error;
         }
       },
@@ -300,32 +222,68 @@ export const useLocations = create<LocationState>()(
         const user = auth.currentUser;
         if (!user) return;
 
-        const unsubscribe = onSnapshot(
-          collection(db, 'users', user.uid, 'selectedLocations'),
-          async (snapshot) => {
-            const changes = snapshot.docChanges();
-            
-            for (const change of changes) {
-              if (change.type === 'modified') {
-                const locationData = await getCachedLocation(change.doc.id);
-                if (locationData) {
-                  set((state) => ({
-                    selectedLocations: state.selectedLocations.map(loc =>
-                      loc.id === change.doc.id ? locationData : loc
-                    )
-                  }));
-                }
+        // Subscribe to userLocations collection for the current user
+        const userLocationsRef = collection(db, 'userLocations');
+        const userLocationsQuery = query(userLocationsRef, where('userId', '==', user.uid));
+        
+        const unsubscribe = onSnapshot(userLocationsQuery, async (snapshot) => {
+          const changes = snapshot.docChanges();
+          
+          for (const change of changes) {
+            if (change.type === 'modified') {
+              const userLocation = change.doc.data();
+              const locationData = await getCachedLocation(userLocation.locationId);
+              if (locationData) {
+                set((state) => ({
+                  selectedLocations: state.selectedLocations.map(loc =>
+                    loc.id === userLocation.locationId ? locationData : loc
+                  )
+                }));
               }
             }
           }
-        );
+        });
 
         return unsubscribe;
       },
+
+      initializeAuthListener: () => {
+        // Set up auth state listener
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            // User logged in - load their locations
+            try {
+              await get().loadSelectedLocations()
+              await get().fetchLocations()
+            } catch (error) {
+              console.error('Error loading locations after auth change:', error)
+              set({ error: 'Failed to load locations' })
+            }
+          } else {
+            // User logged out - clear locations
+            get().clearLocations()
+          }
+        })
+
+        // Return unsubscribe function
+        return unsubscribe
+      },
+
+      // Update clearLocations to be more thorough
+      clearLocations: () => {
+        locationCache.clear() // Clear the cache
+        set({ 
+          locations: [], 
+          selectedLocations: [], 
+          isLoading: false, 
+          error: null 
+        })
+      }
     }),
     {
       name: "locations-storage",
-      partialize: (state) => ({ selectedLocations: state.selectedLocations }),
+      // Don't persist any data - always load fresh from Firestore
+      partialize: () => ({}),
     }
   )
 ) 
