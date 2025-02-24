@@ -6,7 +6,7 @@ import { Toaster } from "@/components/base/toaster"
 import { ThemeProvider } from "@/components/shared/common/theme-provider"
 import { useEffect } from "react"
 import { useLocations } from "@/lib/stores/locations.store"
-import { metadata } from "./metadata"
+import { metadata } from "./config/metadata"
 
 const inter = Inter({ subsets: ["latin"] })
 

@@ -1,7 +1,6 @@
-import {onSchedule} from "firebase-functions/v2/scheduler";
-import type {ScheduledEvent} from "firebase-functions/v2/scheduler";
+import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as logger from "firebase-functions/logger";
-import {AppointmentService} from "../../services/appointment";
+import { AppointmentService } from "../../services/appointment";
 import * as admin from "firebase-admin";
 
 // Initialize Firebase Admin if not already initialized
@@ -11,20 +10,24 @@ if (!admin.apps.length) {
 
 export const checkAppointments = onSchedule({
   schedule: "every 5 minutes",
-  timeoutSeconds: 300,
-  memory: "1GiB",
-}, async (event: ScheduledEvent): Promise<void> => {
+  retryCount: 3,
+  maxRetrySeconds: 60,
+}, async () => {
   try {
-    logger.info("Starting appointment check...");
+    logger.info("Starting appointment check function");
 
-    // Get and process active locations
-    const activeLocations = await AppointmentService.getActiveLocations();
-    logger.info(`Found ${activeLocations.length} active locations`);
+    // Get locations that have subscribers
+    const locationsToCheck = await AppointmentService.getLocationsWithSubscribers();
+    logger.info(`Found ${locationsToCheck.length} locations to check`);
+
+    if (locationsToCheck.length === 0) {
+      logger.info("No locations to check, exiting");
+      return;
+    }
 
     // Update timestamps and check for appointments
-    await AppointmentService.updateLastChecked(activeLocations);
-
-    logger.info("Successfully updated timestamps");
+    await AppointmentService.updateLocationTimestamps(locationsToCheck);
+    logger.info("Successfully completed appointment checks");
   } catch (error) {
     logger.error("Error in appointment check function:", error);
     throw error;

@@ -1,10 +1,9 @@
 export interface Location {
-  id: number;
+  id: string;
   name: string;
   city: string;
   state: string;
-  subscribers: string[];
-  subscriberCount: number;
+  operational: boolean;
   lastChecked: Date | null;
   lastAppointmentFound: Date | null;
 }
