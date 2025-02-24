@@ -9,6 +9,7 @@ import {
   updateProfile
 } from 'firebase/auth';
 import { User, AuthState } from "@/lib/types/auth/user.type";
+import { useLocations } from "@/lib/stores/locations.store";
 
 const createUserFromFirebaseUser = (firebaseUser: FirebaseUser): User => ({
   id: firebaseUser.uid,
@@ -45,6 +46,8 @@ export const useAuth = create<AuthState>((set) => ({
   signOut: async () => {
     try {
       await firebaseSignOut(auth);
+      // Clear locations when user signs out
+      useLocations.getState().clearLocations();
       set({ user: null });
     } catch (error) {
       console.error("Error signing out:", error);

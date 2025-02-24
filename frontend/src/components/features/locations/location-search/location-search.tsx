@@ -19,6 +19,8 @@ import { findMatchingStates, getStateName, sortStatesByRelevance } from "@/lib/s
 import { AppointmentAvailabilityModal } from "@/components/shared/appointments/appointment-availability/appointment-availability-modal"
 import { LocationService } from "@/lib/services/location.service"
 import { Appointment } from "@/lib/types/common/appointment.type"
+import { useAuth } from "@/lib/services/auth/auth"
+
 export function LocationSearch() {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
@@ -35,28 +37,31 @@ export function LocationSearch() {
   const [selectedAppointments, setSelectedAppointments] = useState<Appointment[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null)
+  const { user } = useAuth()
   
   const locationService = new LocationService()
 
   useEffect(() => {
+    if (!user) return
+
     const loadData = async () => {
       try {
         await Promise.all([
           fetchLocations(),
           loadSelectedLocations()
-        ]);
+        ])
       } catch (error) {
+        console.error('Error loading locations:', error)
         toast({
           title: "Error loading locations",
           description: error instanceof Error ? error.message : "Failed to load locations",
           variant: "destructive",
-        });
+        })
       }
-    };
+    }
 
-    loadData();
-    // Empty dependency array since these functions are stable (from zustand)
-  }, []); 
+    loadData()
+  }, [user, fetchLocations, loadSelectedLocations, toast])
 
   const getFilteredLocations = () => {
     if (!search.trim()) {
@@ -111,7 +116,7 @@ export function LocationSearch() {
 
   const handleLocationSelect = async (location: Location) => {
     setSelectedLocation(location)
-    const response = await locationService.checkAppointmentAvailability(location.id)
+    const response = await LocationService.checkAppointmentAvailability(location.id)
     
     if (response.availableSlots.length > 0) {
       setSelectedAppointments(response.availableSlots)
