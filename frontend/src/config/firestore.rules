@@ -1,31 +1,54 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // User document rules
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      
-      // Selected locations subcollection rules
-      match /selectedLocations/{locationId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
-      }
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
     }
-    
-    // Active locations collection rules
-    match /activeLocations/{locationId} {
-      // Allow read if user is authenticated
-      allow read: if request.auth != null;
+
+    // Helper function to validate location data
+    function isValidLocationData(data) {
+      return data.keys().hasAll(['name', 'city', 'state', 'operational']) &&
+        data.name is string &&
+        data.city is string &&
+        data.state is string &&
+        data.operational is bool;
+    }
+
+    // Allow read access to all locations and create if doesn't exist
+    match /locations/{locationId} {
+      allow read: if isAuthenticated();
+      // Only allow creation with valid data and if document doesn't exist
+      allow create: if isAuthenticated() && 
+        !exists(/databases/$(database)/documents/locations/$(locationId)) &&
+        isValidLocationData(request.resource.data);
+      allow update, delete: if false;
+    }
+
+    // User-specific location selections
+    match /userLocations/{userLocationId} {
+      function isValidUserLocationId() {
+        return userLocationId.matches(request.auth.uid + '_.*');
+      }
+
+      function isValidUserLocationData(data) {
+        return data.keys().hasAll(['userId', 'locationId', 'selectedAt']) &&
+          data.userId == request.auth.uid &&
+          data.locationId is string &&
+          data.selectedAt is timestamp;
+      }
+
+      allow read: if isAuthenticated() && 
+        request.auth.uid == resource.data.userId;
       
-      // Allow write if user is authenticated and follows the data structure
-      allow write: if request.auth != null && 
-        (
-          // For creates/updates, validate the data structure
-          (request.resource.data.keys().hasAll(['id', 'subscriberCount', 'subscribers']) &&
-          request.resource.data.subscribers is list &&
-          request.resource.data.subscriberCount is number) ||
-          // For deletes
-          request.method == 'delete'
-        );
+      allow create: if isAuthenticated() && 
+        isValidUserLocationId() &&
+        isValidUserLocationData(request.resource.data) &&
+        exists(/databases/$(database)/documents/locations/$(request.resource.data.locationId));
+      
+      allow delete: if isAuthenticated() && 
+        request.auth.uid == resource.data.userId &&
+        isValidUserLocationId();
     }
   }
 }

@@ -1,21 +1,32 @@
+"use client"
+
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "@/components/base/toaster"
 import { ThemeProvider } from "@/components/shared/common/theme-provider"
-import type { Metadata } from "next"
+import { useEffect } from "react"
+import { useLocations } from "@/lib/stores/locations.store"
+import { metadata } from "./config/metadata"
 
 const inter = Inter({ subsets: ["latin"] })
-
-export const metadata: Metadata = {
-  title: "Your App",
-  description: "Your app description",
-}
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const { initializeAuthListener } = useLocations()
+
+  useEffect(() => {
+    // Initialize auth listener and store unsubscribe function
+    const unsubscribe = initializeAuthListener()
+    
+    // Cleanup on unmount
+    return () => {
+      unsubscribe()
+    }
+  }, [initializeAuthListener])
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
