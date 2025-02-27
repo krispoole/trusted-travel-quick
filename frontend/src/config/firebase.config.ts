@@ -27,10 +27,20 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Analytics and Auth
-const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+// Initialize services, but only in browser environment
+let analytics = null;
+let auth = null;
+let db = null;
 
-// Add this after the firebaseConfig initialization
-console.log('Firebase initialized with project:', process.env.FIREBASE_PROJECT_ID);
+// Initialize services only in browser environment
+if (typeof window !== 'undefined') {
+  analytics = getAnalytics(app);
+  auth = getAuth(app);
+  db = getFirestore(app);
+  
+  // Log initialization in browser for debugging
+  console.log('Firebase initialized with project:', process.env.FIREBASE_PROJECT_ID);
+}
+
+// Export the initialized services
+export { auth, db };

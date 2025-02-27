@@ -9,20 +9,29 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/base/card"
 import { Label } from "@/components/base/label"
 import { SignupModal } from "../signup-modal"
+import { EmailVerificationRequired } from "../email-verification/email-verification-required"
 
 export function LoginForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showSignup, setShowSignup] = useState(false)
+  const [needsVerification, setNeedsVerification] = useState(false)
   const router = useRouter()
-  const { signIn, isLoading } = useAuth()
+  const { signIn, isLoading, isEmailVerified } = useAuth()
   const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      await signIn(email, password)
-      router.push("/dashboard")
+      const isVerified = await signIn(email, password)
+      
+      if (!isVerified) {
+        // User is logged in but email is not verified
+        setNeedsVerification(true)
+      } else {
+        // Email is verified, redirect to dashboard
+        router.push("/dashboard")
+      }
     } catch (error: any) {
       toast({
         title: "Error signing in",
@@ -30,6 +39,11 @@ export function LoginForm() {
         variant: "destructive",
       })
     }
+  }
+
+  // If user needs to verify email, show verification screen
+  if (needsVerification) {
+    return <EmailVerificationRequired />
   }
 
   return (

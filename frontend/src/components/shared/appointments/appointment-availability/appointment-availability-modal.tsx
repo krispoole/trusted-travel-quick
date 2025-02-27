@@ -26,10 +26,10 @@ export function AppointmentAvailabilityModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]" aria-describedby="appointment-modal-description">
         <DialogHeader>
           <DialogTitle>Appointments Available at {locationName}</DialogTitle>
-          <DialogDescription>
+          <DialogDescription id="appointment-modal-description">
             Select an appointment time to schedule your interview
           </DialogDescription>
         </DialogHeader>

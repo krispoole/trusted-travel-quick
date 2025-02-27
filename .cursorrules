@@ -190,7 +190,7 @@ By following these extended rules, you'll be able to create a well-optimized, sc
 
 - Use environment variables for base paths:
   ```env
-  NEXT_PUBLIC_BASE_PATH=/your-repo-name
+  BASE_PATH=/your-repo-name
   ```
 - Ensure all assets use relative paths
 - Handle client-side routing with basePath consideration
