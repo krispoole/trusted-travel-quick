@@ -14,13 +14,11 @@ module.exports = {
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
-    project: ["tsconfig.json"],
+    project: ["tsconfig.json", "tsconfig.dev.json"],
     sourceType: "module",
-    EXPERIMENTAL_useProjectService: true,
   },
   ignorePatterns: [
     "/lib/**/*", // Ignore built files.
-    ".eslintrc.js",
   ],
   plugins: [
     "@typescript-eslint",
@@ -30,17 +28,24 @@ module.exports = {
     "quotes": ["error", "double"],
     "import/no-unresolved": 0,
     "indent": ["error", 2],
-    "max-len": ["error", { "code": 100 }],
+    "max-len": ["error", {
+      "code": 120,
+      "tabWidth": 2,
+      "ignoreUrls": true,
+      "ignoreStrings": true,
+      "ignoreTemplateLiterals": true,
+      "ignoreRegExpLiterals": true,
+    }],
     "object-curly-spacing": ["error", "always"],
     "@typescript-eslint/no-explicit-any": "warn",
     "require-jsdoc": 0,
     "valid-jsdoc": 0,
     "@typescript-eslint/no-unused-vars": [
       "error",
-      { 
+      {
         "argsIgnorePattern": "^_",
-        "varsIgnorePattern": "^_"
-      }
-    ]
+        "varsIgnorePattern": "^_",
+      },
+    ],
   },
 };

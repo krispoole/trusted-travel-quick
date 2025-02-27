@@ -3,6 +3,7 @@ import { Location } from "../types/location";
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
 import type { DocumentData } from "firebase-admin/firestore";
+import fetch from "node-fetch";
 
 /** Service class for handling appointment-related operations */
 export class AppointmentService {
@@ -86,12 +87,47 @@ export class AppointmentService {
 
   /**
    * Checks if appointments are available for a given location
-   * @param {Location} _location - Location to check (currently unused)
+   * @param {Location} location - Location to check
    * @return {Promise<boolean>} Whether appointments are available
    */
-  private static async checkAppointmentAvailability(_location: Location): Promise<boolean> {
-    // TODO: Implement actual appointment checking logic
-    // This could involve making API calls, scraping websites, etc.
-    return Math.random() < 0.2; // 20% chance to simulate finding an appointment
+  static async checkAppointmentAvailability(location: Location): Promise<boolean> {
+    try {
+      const numericId = parseInt(location.id, 10);
+      if (isNaN(numericId)) {
+        logger.error(`Invalid location ID: ${location.id}`);
+        return false;
+      }
+
+      const response = await fetch(
+        "https://ttp.cbp.dhs.gov/schedulerapi/slots?orderBy=soonest&limit=3&" +
+        `locationId=${numericId}&minimum=1`
+      );
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          logger.info(`No appointments found for location ${location.id}`);
+          return false;
+        }
+        logger.error(
+          `Failed to check appointments for location ${location.id}: ` +
+          `${response.status} ${response.statusText}`
+        );
+        return false;
+      }
+
+      const slots = await response.json();
+      const hasAppointments = Array.isArray(slots) && slots.length > 0;
+
+      if (hasAppointments) {
+        logger.info(`Found ${slots.length} appointment slots for location ${location.id}`);
+      } else {
+        logger.info(`No appointment slots available for location ${location.id}`);
+      }
+
+      return hasAppointments;
+    } catch (error) {
+      logger.error(`Error checking appointment availability for location ${location.id}:`, error);
+      return false;
+    }
   }
 }

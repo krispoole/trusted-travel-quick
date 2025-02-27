@@ -24,6 +24,7 @@ export function SignupModal({ open, onOpenChange }: SignupModalProps) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+  const [needsVerification, setNeedsVerification] = useState(false)
   const router = useRouter()
   const { signUp, isLoading } = useAuth()
   const { toast } = useToast()
@@ -41,13 +42,23 @@ export function SignupModal({ open, onOpenChange }: SignupModalProps) {
     }
 
     try {
-      await signUp(email, password)
+      const isVerified = await signUp(email, password)
+      
+      // Close the modal
+      onOpenChange(false)
+      
+      // Show success message
       toast({
         title: "Account created",
-        description: "Welcome to Trusted Travel Quick!",
+        description: "Please verify your email to continue",
       })
-      onOpenChange(false)
-      router.push("/dashboard")
+      
+      // Redirect to verification page or dashboard based on verification status
+      if (!isVerified) {
+        router.push("/auth/verify-email")
+      } else {
+        router.push("/dashboard")
+      }
     } catch (error: any) {
       toast({
         title: "Error creating account",
